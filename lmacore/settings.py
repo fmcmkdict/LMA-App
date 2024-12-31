@@ -37,7 +37,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # new apps
+    'UserAccounts',
+    
+    # third party
+    'rest_framework',
+    
 ]
+
+# custom user model
+AUTH_USER_MODEL='UserAccounts.UserAccounts'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -75,8 +84,13 @@ WSGI_APPLICATION = 'lmacore.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+       
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "lma_api_db",
+        "USER": "postgres",
+        "PASSWORD": "79_luper",
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
 
