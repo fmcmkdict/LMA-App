@@ -53,7 +53,7 @@ AUTH_USER_MODEL='UserAccounts.UserAccounts'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -97,7 +97,8 @@ DATABASES = {
     'default': {
        
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "lma_api_db",
+        # "NAME": "lma_api_db",
+        "NAME": "auth_2_db",
         "USER": "postgres",
         "PASSWORD": "79_luper",
         "HOST": "localhost",
