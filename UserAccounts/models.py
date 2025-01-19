@@ -34,38 +34,45 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_hod', True)
     
-        return self.create_user(username, password, **extra_fields)
+        user = self.create_user(username, password, **extra_fields)
+        user.save()
+        return user
 
     def create_unit_head(self, username=None, password=None, **extra_fields):
         """Creates and returns a Unit Head user."""
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_unit_head', True)
         
-        return self.create_user(username, password, **extra_fields)
+        user = self.create_user(username, password, **extra_fields)
+        user.save()
+        return user
 
     def create_manager(self, username=None, password=None, **extra_fields):
         """Creates and returns a Manager user."""
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_manager', True)
-        return self.create_user(username, password, **extra_fields)
+        
+        user = self.create_user(username, password, **extra_fields)
+        user.save()
     
     
     def create_hr(self,username=None,password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_hr', True)
         user = self.create_user(username,password, **extra_fields)
-        user.save()
         
+        user.save()
         return user
     
     
     def create_superuser(self, username=None, password=None, **extra_fields):
-        user = self.create_user(username,password, **extra_fields)
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_manager', True)
         extra_fields.setdefault('is_hr', True)
         extra_fields.setdefault('is_unit_head', True)
         extra_fields.setdefault('is_hod', True)
+        user = self.create_user(username,password, **extra_fields)
+       
         user.save()
         return user
     
