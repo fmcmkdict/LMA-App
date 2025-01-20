@@ -96,5 +96,39 @@ After configuring the SIMPLE_JWT run makemigrations and migrate
 run server to confirm
 
 
+/// AFTER THE CONFIGUARTION
+1. CREATE A USER SERIALIZER IN THE SERILIZER.PY
+from UserAccounts.models import *
+
+from django.contrib.auth.password_validation import validate_password
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework import serializers
+
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+class UserSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model=User
+        fields="__all__"
+
+
+
+2. NEXT CREATE A TokenObtainPairSerializer
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['name'] = user.name
+        # ...
+
+        return token
+
+
 
 
