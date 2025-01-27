@@ -31,29 +31,31 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         write_only=True
     )
     password = serializers.CharField(write_only=True, min_length=8)
-    password2 = models.CharField(write_only=True)
+    password2 = serializers.CharField(write_only=True)
     
 
     class Meta:
-        model = UserAccounts
-        fields = ['username', 'email', 'first_name', 'sur_name', 'other_name', 'password', 'role']
+        model = User
+        fields = ['username','sur_name','first_name','password','password2', 'role']
+        # fields = '__all__'
 
     def create(self, validated_data):
         role = validated_data.pop('role', None)
         password = validated_data.pop('password', None)
+        validated_data.pop('password2', None)
 
         if role == 'employee':
-            user = UserAccounts.objects.create_employee(**validated_data)
+            user = User.objects.create_employee(**validated_data)
         elif role == 'hod':
-            user = UserAccounts.objects.create_hod(**validated_data)
+            user = User.objects.create_hod(**validated_data)
         elif role == 'unit_head':
-            user = UserAccounts.objects.create_unit_head(**validated_data)
+            user = User.objects.create_unit_head(**validated_data)
         elif role == 'manager':
-            user = UserAccounts.objects.create_manager(**validated_data)
+            user = User.objects.create_manager(**validated_data)
         elif role == 'hr':
-            user = UserAccounts.objects.create_hr(**validated_data)
+            user = User.objects.create_hr(**validated_data)
         elif role == 'superuser':
-            user = UserAccounts.objects.create_superuser(**validated_data)
+            user = User.objects.create_superuser(**validated_data)
         else:
             raise serializers.ValidationError({'role': 'Invalid role specified.'})
 
@@ -65,7 +67,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     
 
 class UserLoginSerializer(serializers.Serializer):
-    user_name = serializers.CharField()
+    username = serializers.CharField()
     password = serializers.CharField(write_only=True)
     
     
@@ -74,7 +76,8 @@ class UserLoginSerializer(serializers.Serializer):
         user = authenticate(**attrs)
         if user and user.is_active:
             return user
-        raise serializers.ValidationError({"error":"Incorrect Credentials"})
+        raise serializers.ValidationError()
+        # raise serializers.ValidationError({"error":"Incorrect Credentials"})
     
     
     

@@ -86,14 +86,14 @@ class UserAccounts(AbstractBaseUser, PermissionsMixin):
     other_name = models.CharField(max_length=255,blank=True,null=True)
     date_first_appt = models.DateField(blank=True,null=True)
     date_confirmed = models.DateField(blank=True,null=True)
-    gender = models.CharField(max_length=50)
+    gender = models.CharField(max_length=50,blank=True,null=True)
     designation = models.CharField(max_length=255,blank=True,null=True)
     phone = models.CharField(max_length=50,blank=True,null=True)
     # dept = models.CharField(max_length=255)
     # unit = models.CharField(max_length=255)
     dob = models.DateField(blank=True,null=True)
     avatar = models.ImageField(null=True,blank=True)
-    email = models.EmailField(unique=True, max_length=255,blank=True)
+    email = models.EmailField(max_length=255,blank=True,null=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     # date_joined = models.DateTimeField(default=timezone.now)
     
@@ -109,7 +109,7 @@ class UserAccounts(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'username'
-    EMAIL_FIELD ='email'
+    
     
     REQUIRED_FIELDS = ['first_name', 'sur_name']
     
