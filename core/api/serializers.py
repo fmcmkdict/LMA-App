@@ -76,14 +76,9 @@ class UserLoginSerializer(serializers.Serializer):
         user = authenticate(**attrs)
         if user and user.is_active:
             return user
-        raise serializers.ValidationError()
-        # raise serializers.ValidationError({"error":"Incorrect Credentials"})
-    
-    
-    
-    
-    
-    
+        
+        raise serializers.ValidationError({"error":"Incorrect Credentials"})
+
         
 class NotInUseRegistrationSerializer(serializers.ModelSerializer):
     
