@@ -1,0 +1,134 @@
+CONFIGURATION FOR THE BACKEND
+
+CHECK CORRESPONDING WEBSITE FOR DOCUMENTATION
+
+1. INSTALL djangorestframework
+2. INSTALL djangorestframework-simplejwt (installs pyJWT)
+3. INSTALL django-cors-headers
+
+
+CREATE AN APP
+
+4. CREATE AN APP AND INCLUDE THEM IN THE INSTALLED_APPS SECTION
+
+CONFIGURING PACKAGES
+
+5. ADD THE PACKAGES TO THE  INSTALLED_APP
+    rest_framework
+    rest_framework_simplejwt.token_blacklist (for token_blacklist)
+    corsheaders
+
+6. CONFIGURE djangorestframework-simplejwt, ADD THE  FOLLOWING IN THE SETTINGS.pyJWT
+
+    REST_FRAMEWORK = {
+        'DEFAULT_AUTHENTICATION_CLASSES': (
+            'rest_framework_simplejwt.authentication.JWTAuthentication',
+        )
+    }
+
+7. ADD THE FOLLOWING SIMPLEJWT CONFIGURATION
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
+    "ROTATE_REFRESH_TOKENS": True, //initial false
+    "BLACKLIST_AFTER_ROTATION": True, //initial false
+    "UPDATE_LAST_LOGIN": False,
+
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": settings.SECRET_KEY,
+    "VERIFYING_KEY": "",
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JSON_ENCODER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+
+    "JTI_CLAIM": "jti",
+
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+
+    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
+    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
+    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
+    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
+    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
+}
+
+
+8. CONFIGURE THE corsheaders
+
+CORS_ALLOW_ALL_ORIGINS  = True
+
+ADD THE CORSHEADERS MIDDLEWARE IN THE MIDDLEWARE SECTION
+
+....
+
+'corsheaders.middleware.CorsMiddleware',
+'django.middleware.common.CommonMiddleware',
+
+......
+
+9. JWT Token last for 5 minutes to increase, 
+first import 
+
+from datetime import timedelta
+
+increase the time in the SIMPLE_JWT settings
+
+After configuring the SIMPLE_JWT run makemigrations and migrate
+
+run server to confirm
+
+
+/// AFTER THE CONFIGUARTION
+1. CREATE A USER SERIALIZER IN THE SERILIZER.PY
+from UserAccounts.models import *
+
+from django.contrib.auth.password_validation import validate_password
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework import serializers
+
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+class UserSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model=User
+        fields="__all__"
+
+
+
+2. NEXT CREATE A TokenObtainPairSerializer
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['name'] = user.name
+        # ...
+
+        return token
+
+
+
+
