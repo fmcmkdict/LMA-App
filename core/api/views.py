@@ -58,7 +58,7 @@ class UserLogoutAPIView(GenericAPIView):
         
 
 class UserInfoAPIView(RetrieveAPIView):
-    permission_classes =(IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = UserSerializer
     
     def get_object(self):
