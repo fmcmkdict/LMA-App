@@ -71,6 +71,7 @@ REST_FRAMEWORK = {
     )
     
 }
+
 # simple jwt settings
 #  "ROTATE_REFRESH_TOKENS": True, /*initial false
 # "BLACKLIST_AFTER_ROTATION": True, //initial false
@@ -146,7 +147,7 @@ DATABASES = {
     'default': {
        
         "ENGINE": "django.db.backends.postgresql",
-        # "NAME": "lma_api_db",
+        #"NAME": "lma_api_db",
         "NAME": "auth_2_db",
         "USER": "postgres",
         "PASSWORD": "79_luper",
