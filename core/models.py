@@ -17,7 +17,6 @@ class Department(models.Model):
         ('NON-CLINICAL','NON-CLINICAL')
     )
     name = models.CharField(max_length=100, unique=True)
-    # user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='user_depts')
     type = models.CharField(max_length=200, choices=DEPT_TYPES)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -29,7 +28,7 @@ class Department(models.Model):
         
 # This model stores information about units related to a dept
 
-class DeptUnit(models.Model):
+class Unit(models.Model):
     name = models.CharField(max_length=100, unique=True)
     dept = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='deptunits')
     created = models.DateTimeField(auto_now_add=True)
@@ -50,7 +49,7 @@ class LeaveType(models.Model):
 
     
 
-# This mode  stores data for leave request
+# This model  stores data for leave request
 class LeaveRequest(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -66,21 +65,20 @@ class LeaveRequest(models.Model):
     reason = models.TextField()
     leave_last_taken =models.DateField()
     number_of_days = models.IntegerField()
+    deductible_leave = models.PositiveIntegerField(null=True, blank=True)
     leave_code = models.CharField(max_length=250,unique=True)
-    
     ip_address = models.GenericIPAddressField(null=True,blank=True)
     user_agent = models.TextField(null=True, blank=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    location = models.CharField(max_length=255, null=True, blank=True)
     
+    # include address and where leave is to be spent
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    applied_on = models.DateTimeField(auto_now_add=True)
     approved_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="approved_leaves", null=True, blank=True)
     recommended_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="leave_recommendations", null=True, blank=True)
 
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return self.employee.sur_name
@@ -101,6 +99,7 @@ class Holiday(models.Model):
     name = models.CharField(max_length=255)
     date = models.DateField(unique=True)
     year = models.PositiveIntegerField()
+    description = models.CharField(max_length=200)
 
     class Meta:
         ordering = ["date"]
