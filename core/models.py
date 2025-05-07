@@ -74,7 +74,7 @@ class LeaveRequest(models.Model):
     
     # include address and where leave is to be spent
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    approved_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="approved_leaves", null=True, blank=True)
+    approved_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="approved_leaves")
     recommended_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="leave_recommendations", null=True, blank=True)
 
     created_on = models.DateTimeField(auto_now_add=True)

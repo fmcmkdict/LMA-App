@@ -1,11 +1,13 @@
 from django.urls import path
-from .views import *
-from rest_framework_simplejwt.views import TokenRefreshView
+from core.api.views import *
 
 urlpatterns = [
-    path('register/', UserRegistrationAPIView.as_view(), name='register-user'),
-    path('login/', UserLoginAPIView.as_view(), name='login-user'),
-    path('logout/', UserLogoutAPIView.as_view(), name='logout-user'),
-    path('token/refresh',TokenRefreshView.as_view, name='token-refresh'),
-    path('user/',UserInfoAPIView.as_view(), name='user-info')
+    path('depts/', DeptCreateList.as_view(), name='dept-list-create'),
+    path('depts/<int:pk>', DeptDetailView.as_view(), name='dept-detail'),
+    
+    path('units/', UnitCreateList.as_view(), name='unit-list-create'),
+    path('units/<int:pk>', UnitsDetail.as_view(), name='unit-detail'),
+    
+    path('leave-type/',LeaveTypeCreateList.as_view(),name='leave-type-list-create'),
+    path('leave-type/<int:pk>',LeaveTypeDetail.as_view(),name='leave-type-detail')
 ]

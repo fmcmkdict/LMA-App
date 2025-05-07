@@ -41,12 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # new apps
     'UserAccounts',
+    'core',
     
     # third party
     'rest_framework',
     "corsheaders",
-    'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
+    # 'rest_framework_simplejwt',
+    # 'rest_framework_simplejwt.token_blacklist',
     
 ]
 
@@ -147,8 +148,9 @@ DATABASES = {
     'default': {
        
         "ENGINE": "django.db.backends.postgresql",
-        #"NAME": "lma_api_db",
-        "NAME": "auth_2_db",
+        "NAME": "lma_api_db",
+        # working auth
+        # "NAME": "auth_2_db", 
         "USER": "postgres",
         "PASSWORD": "79_luper",
         "HOST": "localhost",
