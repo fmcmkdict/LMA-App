@@ -40,6 +40,9 @@ class Unit(models.Model):
 # This model records various types of leave e.g. Annual Leave
 class LeaveType(models.Model):
     name = models.CharField(max_length=100)
+    number_of_days = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(365)])
+    multiple_times = models.BooleanField(default=False) 
+    description = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     
@@ -55,24 +58,25 @@ class LeaveRequest(models.Model):
         ('pending', 'Pending'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
-        ('cancelled', 'Cancelled')
+        ('cancelled', 'Cancelled'),
+        ('exhausted', 'Exhausted')
     ]
     
     employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name="leave_requests")
     leave_type = models.ForeignKey(LeaveType, on_delete=models.CASCADE, related_name="leave_types")
+    dept = models.ForeignKey(Department, on_delete=models.CASCADE, related_name="leave_depts")
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name="leave_units")
     start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+    end_date = models.DateTimeField(blank=True, null=True)
     reason = models.TextField()
     leave_last_taken =models.DateField()
     number_of_days = models.IntegerField()
-    deductible_leave = models.PositiveIntegerField(null=True, blank=True)
     leave_code = models.CharField(max_length=250,unique=True)
-    ip_address = models.GenericIPAddressField(null=True,blank=True)
-    user_agent = models.TextField(null=True, blank=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     
-    # include address and where leave is to be spent
+    home_address = models.TextField()
+    place_to_spend_leave = models.TextField()
+    alt_phone = models.CharField(null=True, blank=True)
+    
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     approved_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="approved_leaves")
     recommended_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="leave_recommendations", null=True, blank=True)
@@ -81,62 +85,58 @@ class LeaveRequest(models.Model):
     updated_on = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return self.employee.sur_name
+        
+        return f"{self.employee.sur_name} - {self.start_date} to {self.end_date}"
     
-    def get_location(self):
-        if self.ip_address:
-            geo = GeoIP2()
-            try:
-                location = geo.city(self.ip_address)
-                return f"{location['city']}, {location['country_name']}"
-            except Exception:
-                return "Unknown Location"
-        return "Unknown Location"
-    
+    @property
+    def working_days(self):
+        """Returns the number of leave days excluding weekends and public holidays."""
+        start = self.start_date.date()
+        end = self.end_date.date()
+
+        total_days = (end - start).days + 1  # include both start and end date
+        leave_days = 0
+
+        for i in range(total_days):
+            day = start + timedelta(days=i)
+            if day.weekday() >= 5:  # 5 = Saturday, 6 = Sunday
+                continue  # skip weekends
+            if Holiday.objects.filter(date=day).exists():
+                continue  # skip public holidays
+            leave_days += 1
+
+        return leave_days
+
 
 # This stores holidays available in a year
 class Holiday(models.Model):
     name = models.CharField(max_length=255)
-    date = models.DateField(unique=True)
-    year = models.PositiveIntegerField()
-    description = models.CharField(max_length=200)
-
-    class Meta:
-        ordering = ["date"]
-        unique_together = ("date", "year")
-        verbose_name = "Holiday"
-        verbose_name_plural = "Holidays"
+    date = models.DateField(unique=True)  # Ensures no duplicate dates
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.name} ({self.date})"
-    
-    # 
-    def compute_leave_days(start_date, end_date):
-        
-        """Compute actual leave days excluding weekends and public holidays."""
-        current_date = start_date
-        leave_days = 0
-
-        while current_date <= end_date:
-            # Skip weekends (Saturday & Sunday)
-            if current_date.weekday() in [5, 6]:  
-                current_date += timedelta(days=1)
-                continue
-
-            # Skip public holidays
-            if Holiday.objects.filter(date=current_date).exists():
-                current_date += timedelta(days=1)
-                continue
-
-            leave_days += 1
-            current_date += timedelta(days=1)
-
-        return leave_days
+        return f"{self.name} - {self.date}"
     
 
+# This model stores the leave balance for each employee
+class LeaveBalance(models.Model):
+ 
+    employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name="leave_balances")
+    leave_type = models.ForeignKey(LeaveType, on_delete=models.CASCADE, related_name="leave_type_balances")
+    year = models.IntegerField()
+    total_days = models.PositiveIntegerField()
+    days_used = models.PositiveIntegerField(default=0)
+    days_remaining = models.PositiveIntegerField()
     
-     
-
+    class Meta:
+        unique_together = ['employee', 'leave_type', 'year']
+    
+    def __str__(self):
+        return f"{self.employee.get_full_name()} - {self.leave_type.name} ({self.year})"
+    
+    def save(self, *args, **kwargs):
+        self.days_remaining = self.total_days - self.days_used
+        super().save(*args, **kwargs)
 
     
     

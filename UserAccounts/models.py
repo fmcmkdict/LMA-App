@@ -3,14 +3,15 @@ from django.utils import timezone
 from datetime import date
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
+
 class CustomUserManager(BaseUserManager):
     
-    def create_user(self, username, password, **extra_fields):
+    def create_user(self, username, password, dept, unit, **extra_fields):
         
         if not username:
             raise ValueError('User must have a username and must be unique')
     
-        user = self.model(username=username, **extra_fields)
+        user = self.model(username=username,dept=dept,unit=unit, **extra_fields)
         user.set_password(password)
         
         # when using multple databases
@@ -20,58 +21,59 @@ class CustomUserManager(BaseUserManager):
     
 
     # method to create other roles
-    def create_employee(self, username=None, password=None,**extra_fields):
+    def create_employee(self, username=None, password=None, dept=None, unit=None,**extra_fields):
         
         extra_fields.setdefault('is_staff', True)
-        user = self.create_user(username,password,**extra_fields)
+        user = self.create_user(username,password,dept,unit,**extra_fields)
         user.save()
         
         return user
     
-    def create_hod(self, username=None, password=None, **extra_fields):
+    def create_hod(self, username=None, password=None,dept=None,unit=None, **extra_fields):
         
         """Creates and returns a HOD user."""
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_hod', True)
     
-        user = self.create_user(username, password, **extra_fields)
+        user = self.create_user(username, password,dept,unit, **extra_fields)
         user.save()
         return user
 
-    def create_unit_head(self, username=None, password=None, **extra_fields):
+    def create_unit_head(self, username=None, password=None,dept=None,unit=None, **extra_fields):
         """Creates and returns a Unit Head user."""
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_unit_head', True)
         
-        user = self.create_user(username, password, **extra_fields)
+        user = self.create_user(username, password,dept,unit, **extra_fields)
         user.save()
         return user
 
-    def create_manager(self, username=None, password=None, **extra_fields):
+    def create_manager(self, username=None, password=None,dept=None,unit=None, **extra_fields):
         """Creates and returns a Manager user."""
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_manager', True)
         
-        user = self.create_user(username, password, **extra_fields)
+        user = self.create_user(username, password,dept,unit, **extra_fields)
         user.save()
     
     
-    def create_hr(self,username=None,password=None, **extra_fields):
+    def create_hr(self,username=None,password=None,dept=None,unit=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_hr', True)
-        user = self.create_user(username,password, **extra_fields)
+        user = self.create_user(username,password,dept,unit, **extra_fields)
         
         user.save()
         return user
     
     
-    def create_superuser(self, username=None, password=None, **extra_fields):
+    def create_superuser(self, username=None, password=None,dept=None, unit=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_manager', True)
         extra_fields.setdefault('is_hr', True)
         extra_fields.setdefault('is_unit_head', True)
         extra_fields.setdefault('is_hod', True)
-        user = self.create_user(username,password, **extra_fields)
+        user = self.create_user(username,password,dept,unit, **extra_fields)
        
         user.save()
         return user
@@ -89,8 +91,8 @@ class UserAccounts(AbstractBaseUser, PermissionsMixin):
     gender = models.CharField(max_length=50,blank=True,null=True)
     designation = models.CharField(max_length=255,blank=True,null=True)
     phone = models.CharField(max_length=50,blank=True,null=True)
-    # dept = models.CharField(max_length=255)
-    # unit = models.CharField(max_length=255)
+    dept = models.ForeignKey('core.Department',on_delete=models.CASCADE, related_name='userdept')
+    unit = models.ForeignKey('core.Unit', on_delete=models.CASCADE,related_name='userunits')
     dob = models.DateField(blank=True,null=True)
     avatar = models.ImageField(null=True,blank=True)
     email = models.EmailField(max_length=255,blank=True,null=True)
@@ -111,7 +113,7 @@ class UserAccounts(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'username'
     
     
-    REQUIRED_FIELDS = ['first_name', 'sur_name']
+    REQUIRED_FIELDS = ['first_name', 'sur_name','dept','unit']
     
     # REQUIRED_FIELDS=[]
 

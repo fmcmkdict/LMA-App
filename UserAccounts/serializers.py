@@ -36,7 +36,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username','sur_name','first_name','password','password2', 'role']
+        fields = ['username','sur_name','first_name','password','password2', 'role','dept','unit']
         # fields = '__all__'
 
     def create(self, validated_data):

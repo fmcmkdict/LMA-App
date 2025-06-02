@@ -34,7 +34,16 @@ class LeaveTypeSerializers(serializers.ModelSerializer):
 
 class LeaveRequestSerializers(serializers.ModelSerializer):
     
+    employee = serializers.StringRelatedField(read_only=True)
+    
     class Meta:
         model = LeaveRequest
+        fields = '__all__'
+        # read_only_fields = ['end_date']
+        
+class HolidaySerializers(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Holiday
         fields = '__all__'
         

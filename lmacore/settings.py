@@ -40,8 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # new apps
-    'UserAccounts',
     'core',
+    'UserAccounts',
+   
     
     # third party
     'rest_framework',
@@ -78,9 +79,9 @@ REST_FRAMEWORK = {
 # "BLACKLIST_AFTER_ROTATION": True, //initial false
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=180),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
-    "ROTATE_REFRESH_TOKENS": True, 
+    "ROTATE_REFRESH_TOKENS": False, 
     "BLACKLIST_AFTER_ROTATION": True, 
     "UPDATE_LAST_LOGIN": False,
 
@@ -148,7 +149,7 @@ DATABASES = {
     'default': {
        
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "lma_api_db",
+        "NAME": "db_lma_test",
         # working auth
         # "NAME": "auth_2_db", 
         "USER": "postgres",
