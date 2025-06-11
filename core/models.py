@@ -40,7 +40,7 @@ class Unit(models.Model):
 # This model records various types of leave e.g. Annual Leave
 class LeaveType(models.Model):
     name = models.CharField(max_length=100)
-    number_of_days = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(365)])
+    number_of_days = models.IntegerField(default=0)
     multiple_times = models.BooleanField(default=False) 
     description = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
