@@ -13,21 +13,52 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 from django.conf import settings
+import environ
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Initialize environment variables
+env = environ.Env(
+    DEBUG=(bool, True),
+    ENV=(str, 'development'),
+    SECRET_KEY=(str, 'django-insecure-t0quoow%i-whtq3(pd5550v!o)^v%@^a9n_&+bch=5mr=5x2$1'),
+    ALLOWED_HOSTS=(list, []),
+    EMAIL_BACKEND=(str, 'django.core.mail.backends.console.EmailBackend'),
+    EMAIL_HOST=(str, 'localhost'),
+    EMAIL_PORT=(int, 25),
+    EMAIL_HOST_USER=(str, ''),
+    EMAIL_HOST_PASSWORD=(str, ''),
+    EMAIL_USE_TLS=(bool, False),
+    EMAIL_USE_SSL=(bool, False),
+    DEFAULT_FROM_EMAIL=(str, 'webmaster@localhost'),
+    CORS_ALLOW_ALL_ORIGINS=(bool, True),
+    CORS_ALLOWED_ORIGINS=(list, []),
+    STATIC_URL=(str, 'static/'),
+    STATIC_ROOT=(str, str(BASE_DIR / 'staticfiles')),
+    MEDIA_URL=(str, '/media/'),
+    MEDIA_ROOT=(str, str(BASE_DIR / 'media')),
+    LANGUAGE_CODE=(str, 'en-us'),
+    TIME_ZONE=(str, 'UTC'),
+    USE_I18N=(bool, True),
+    USE_TZ=(bool, True),
+    DATABASE_URL=(str, 'postgres://postgres:79_luper@localhost:5432/db_lma_test'),
+    DB_SSL_REQUIRE=(bool, False),
+)
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+environ.Env.read_env(env_file=str(BASE_DIR / '.env'))  # Load .env if present
+
+# Environment
+ENV = env('ENV')  # 'development' or 'production'
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-t0quoow%i-whtq3(pd5550v!o)^v%@^a9n_&+bch=5mr=5x2$1'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
 
 # Application definition
@@ -40,13 +71,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # new apps
+    'core',
     'UserAccounts',
+   
     
     # third party
     'rest_framework',
     "corsheaders",
-    'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
+    # 'rest_framework_simplejwt',
+    # 'rest_framework_simplejwt.token_blacklist',
     
 ]
 
@@ -77,9 +110,9 @@ REST_FRAMEWORK = {
 # "BLACKLIST_AFTER_ROTATION": True, //initial false
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=180),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
-    "ROTATE_REFRESH_TOKENS": True, 
+    "ROTATE_REFRESH_TOKENS": False, 
     "BLACKLIST_AFTER_ROTATION": True, 
     "UPDATE_LAST_LOGIN": False,
 
@@ -117,7 +150,8 @@ SIMPLE_JWT = {
 }
 
 
-CORS_ALLOW_ALL_ORIGINS  = True
+CORS_ALLOW_ALL_ORIGINS = env('CORS_ALLOW_ALL_ORIGINS')
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS')
 
 ROOT_URLCONF = 'lmacore.urls'
 
@@ -144,16 +178,11 @@ WSGI_APPLICATION = 'lmacore.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-       
-        "ENGINE": "django.db.backends.postgresql",
-        #"NAME": "lma_api_db",
-        "NAME": "auth_2_db",
-        "USER": "postgres",
-        "PASSWORD": "79_luper",
-        "HOST": "localhost",
-        "PORT": "5432",
-    }
+    'default': dj_database_url.config(
+        default=env('DATABASE_URL', default='postgres://postgres:79_luper@localhost:5432/db_lma_test'),
+        conn_max_age=600,
+        ssl_require=env.bool('DB_SSL_REQUIRE', default=False)
+    )
 }
 
 
@@ -179,21 +208,36 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = env('LANGUAGE_CODE')
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = env('TIME_ZONE')
 
-USE_I18N = True
+USE_I18N = env('USE_I18N')
 
-USE_TZ = True
+USE_TZ = env('USE_TZ')
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = env('STATIC_URL')
+STATIC_ROOT = env('STATIC_ROOT')
+
+# Media files
+MEDIA_URL = env('MEDIA_URL')
+MEDIA_ROOT = env('MEDIA_ROOT')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Email configuration
+EMAIL_BACKEND = env('EMAIL_BACKEND')
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = env('EMAIL_PORT')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = env('EMAIL_USE_TLS')
+EMAIL_USE_SSL = env('EMAIL_USE_SSL')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
