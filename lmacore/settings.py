@@ -180,7 +180,7 @@ WSGI_APPLICATION = 'lmacore.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-if ENVIRONMENT == 'production':
+if ENVIRONMENT == 'development':
  DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -192,12 +192,8 @@ if ENVIRONMENT == 'production':
         }
  }
 else:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=env('DATABASE_PUBLIC_URL'),
-            conn_max_age=600,
-            ssl_require=env.bool('DB_SSL_REQUIRE', default=True)
-        )
+   DATABASES = {
+        'default': env.db('DATABASE_PUBLIC_URL')
     }
 
 
