@@ -22,32 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Initialize environ
 env = environ.Env(
     DEBUG=(bool, False),
-    ENVIRONMENT=(str, 'development'),
     ALLOWED_HOSTS=(list, []),
     JWT_ACCESS_TOKEN_LIFETIME=(int, 180),
     JWT_REFRESH_TOKEN_LIFETIME=(int, 2),
-    SECRET_KEY=(str, 'django-insecure-t0quoow%i-whtq3(pd5550v!o)^v%@^a9n_&+bch=5mr=5x2$1'),
-    EMAIL_BACKEND=(str, 'django.core.mail.backends.console.EmailBackend'),
-    EMAIL_HOST=(str, 'localhost'),
-    EMAIL_PORT=(int, 25),
-    EMAIL_HOST_USER=(str, ''),
-    EMAIL_HOST_PASSWORD=(str, ''),
-    EMAIL_USE_TLS=(bool, False),
-    EMAIL_USE_SSL=(bool, False),
-    DEFAULT_FROM_EMAIL=(str, 'webmaster@localhost'),
-    CORS_ALLOW_ALL_ORIGINS=(bool, True),
-    CORS_ALLOWED_ORIGINS=(list, []),
-    STATIC_URL=(str, 'static/'),
-    STATIC_ROOT=(str, str(BASE_DIR / 'staticfiles')),
-    MEDIA_URL=(str, '/media/'),
-    MEDIA_ROOT=(str, str(BASE_DIR / 'media')),
-    LANGUAGE_CODE=(str, 'en-us'),
-    TIME_ZONE=(str, 'UTC'),
-    USE_I18N=(bool, True),
-    USE_TZ=(bool, True),
-    DATABASE_URL=(str, 'postgres://postgres:79_luper@localhost:5432/db_lma_test'),
-    DATABASE_PUBLIC_URL=(str, ''),
-    DB_SSL_REQUIRE=(bool, False),
 )
 
 # Take environment variables from .env file
@@ -192,10 +169,9 @@ if ENVIRONMENT == 'development':
         }
  }
 else:
-   DATABASES = {
+     DATABASES = {
         'default': env.db('DATABASE_PUBLIC_URL')
     }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
