@@ -12,19 +12,21 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-from django.conf import settings
+import os
 import environ
 import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Initialize environment variables
+# Initialize environ
 env = environ.Env(
-    DEBUG=(bool, True),
-    ENV=(str, 'development'),
-    SECRET_KEY=(str, 'django-insecure-t0quoow%i-whtq3(pd5550v!o)^v%@^a9n_&+bch=5mr=5x2$1'),
+    DEBUG=(bool, False),
+    ENVIRONMENT=(str, 'development'),
     ALLOWED_HOSTS=(list, []),
+    JWT_ACCESS_TOKEN_LIFETIME=(int, 180),
+    JWT_REFRESH_TOKEN_LIFETIME=(int, 2),
+    SECRET_KEY=(str, 'django-insecure-t0quoow%i-whtq3(pd5550v!o)^v%@^a9n_&+bch=5mr=5x2$1'),
     EMAIL_BACKEND=(str, 'django.core.mail.backends.console.EmailBackend'),
     EMAIL_HOST=(str, 'localhost'),
     EMAIL_PORT=(int, 25),
@@ -44,21 +46,24 @@ env = environ.Env(
     USE_I18N=(bool, True),
     USE_TZ=(bool, True),
     DATABASE_URL=(str, 'postgres://postgres:79_luper@localhost:5432/db_lma_test'),
+    DATABASE_PUBLIC_URL=(str, ''),
     DB_SSL_REQUIRE=(bool, False),
 )
 
-environ.Env.read_env(env_file=str(BASE_DIR / '.env'))  # Load .env if present
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-# Environment
-ENV = env('ENV')  # 'development' or 'production'
+ENVIRONMENT = env('ENVIRONMENT', default='development')
+
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = env('DEBUG', default=True) if ENVIRONMENT == 'development' else env('DEBUG', default=False)
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost'])
 
 
 # Application definition
@@ -98,11 +103,9 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
-
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-    
+    ],
 }
 
 # simple jwt settings
@@ -110,14 +113,14 @@ REST_FRAMEWORK = {
 # "BLACKLIST_AFTER_ROTATION": True, //initial false
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=180),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
-    "ROTATE_REFRESH_TOKENS": False, 
-    "BLACKLIST_AFTER_ROTATION": True, 
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=env('JWT_ACCESS_TOKEN_LIFETIME', default=180)),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=env('JWT_REFRESH_TOKEN_LIFETIME', default=2)),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
 
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": settings.SECRET_KEY,
+    "SIGNING_KEY": SECRET_KEY,
     "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,
@@ -150,8 +153,8 @@ SIMPLE_JWT = {
 }
 
 
-CORS_ALLOW_ALL_ORIGINS = env('CORS_ALLOW_ALL_ORIGINS')
-CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS')
+CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=True)
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])
 
 ROOT_URLCONF = 'lmacore.urls'
 
@@ -177,13 +180,25 @@ WSGI_APPLICATION = 'lmacore.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=env('DATABASE_URL', default='postgres://postgres:79_luper@localhost:5432/db_lma_test'),
-        conn_max_age=600,
-        ssl_require=env.bool('DB_SSL_REQUIRE', default=False)
-    )
-}
+if ENVIRONMENT == 'development':
+ DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'db_lma_test',
+            'USER': 'postgres',
+            'PASSWORD': '79_luper',
+            'HOST': 'localhost',
+            'PORT': '5432'
+        }
+ }
+else:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=env('DATABASE_PUBLIC_URL'),
+            conn_max_age=600,
+            ssl_require=env.bool('DB_SSL_REQUIRE', default=True)
+        )
+    }
 
 
 # Password validation
@@ -208,24 +223,24 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = env('LANGUAGE_CODE')
+LANGUAGE_CODE = env('LANGUAGE_CODE', default='en-us')
 
-TIME_ZONE = env('TIME_ZONE')
+TIME_ZONE = env('TIME_ZONE', default='UTC')
 
-USE_I18N = env('USE_I18N')
+USE_I18N = env('USE_I18N', default=True)
 
-USE_TZ = env('USE_TZ')
+USE_TZ = env('USE_TZ', default=True)
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = env('STATIC_URL')
-STATIC_ROOT = env('STATIC_ROOT')
+STATIC_URL = env('STATIC_URL', default='static/')
+STATIC_ROOT = env('STATIC_ROOT', default=str(BASE_DIR / 'staticfiles'))
 
 # Media files
-MEDIA_URL = env('MEDIA_URL')
-MEDIA_ROOT = env('MEDIA_ROOT')
+MEDIA_URL = env('MEDIA_URL', default='/media/')
+MEDIA_ROOT = env('MEDIA_ROOT', default=str(BASE_DIR / 'media'))
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -233,11 +248,11 @@ MEDIA_ROOT = env('MEDIA_ROOT')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Email configuration
-EMAIL_BACKEND = env('EMAIL_BACKEND')
-EMAIL_HOST = env('EMAIL_HOST')
-EMAIL_PORT = env('EMAIL_PORT')
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = env('EMAIL_USE_TLS')
-EMAIL_USE_SSL = env('EMAIL_USE_SSL')
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+# EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+# EMAIL_HOST = env('EMAIL_HOST', default='localhost')
+# EMAIL_PORT = env('EMAIL_PORT', default=25)
+# EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+# EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+# EMAIL_USE_TLS = env('EMAIL_USE_TLS', default=False)
+# EMAIL_USE_SSL = env('EMAIL_USE_SSL', default=False)
+# DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
