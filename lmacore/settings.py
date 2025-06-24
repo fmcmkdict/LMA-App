@@ -180,7 +180,7 @@ WSGI_APPLICATION = 'lmacore.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-if ENVIRONMENT == 'development':
+if ENVIRONMENT == 'production':
  DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
