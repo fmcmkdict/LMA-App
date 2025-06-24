@@ -6,11 +6,12 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+# 
 
 class UnitSerializers(serializers.ModelSerializer):
     
     # This overides the default field representation and create a new field name
-    department_name = serializers.CharField(source='dept.name', read_only=True)
+    # department_name = serializers.CharField(source='dept.name', read_only=True)
     # department_id = serializers.IntegerField(source='dept.id', read_only=True)
     class Meta:
         model = Unit
@@ -19,7 +20,7 @@ class UnitSerializers(serializers.ModelSerializer):
         
 class DepartmentSerializers(serializers.ModelSerializer):
     
-    deptunits = UnitSerializers(many=True,read_only=True)
+    # deptunits = UnitSerializers(many=True,read_only=True)
     
     class Meta:
         model= Department
