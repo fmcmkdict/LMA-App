@@ -157,19 +157,24 @@ WSGI_APPLICATION = 'lmacore.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-if ENVIRONMENT == 'development':
- DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'db_lma_test',
-            'USER': 'postgres',
-            'PASSWORD': '79_luper',
-            'HOST': 'localhost',
-            'PORT': '5432'
-        }
- }
-else:
-     DATABASES = {
+
+# if ENVIRONMENT == 'development':
+#  DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'NAME': 'db_lma_test',
+#             'USER': 'postgres',
+#             'PASSWORD': '79_luper',
+#             'HOST': 'localhost',
+#             'PORT': '5432'
+#         }
+#  }
+# else:
+#      DATABASES = {
+#         'default': env.db('DATABASE_PUBLIC_URL')
+#     }
+     
+DATABASES = {
         'default': env.db('DATABASE_PUBLIC_URL')
     }
 
