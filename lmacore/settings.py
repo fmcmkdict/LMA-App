@@ -39,9 +39,25 @@ SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=True) if ENVIRONMENT == 'development' else env('DEBUG', default=False)
+# commented out will uncomment while in production
+# ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost'])
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost'])
+ALLOWED_HOSTS = ['*']
 
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = [
+    # "http://localhost:3000"
+    "https://freeda-client.onrender.com",
+    "http://localhost:5175",
+    "http://localhost:5174"
+    "http://localhost:5173"
+    #"https://midastouch.com.ng",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+   "https://freeda-client.onrender.com",
+]
 
 # Application definition
 
@@ -158,25 +174,25 @@ WSGI_APPLICATION = 'lmacore.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-# if ENVIRONMENT == 'development':
-#  DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql',
-#             'NAME': 'db_lma_test',
-#             'USER': 'postgres',
-#             'PASSWORD': '79_luper',
-#             'HOST': 'localhost',
-#             'PORT': '5432'
-#         }
-#  }
-# else:
-#      DATABASES = {
-#         'default': env.db('DATABASE_PUBLIC_URL')
-#     }
-     
-DATABASES = {
+if ENVIRONMENT == 'production':
+ DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'db_lma_test',
+            'USER': 'postgres',
+            'PASSWORD': '79_luper',
+            'HOST': 'localhost',
+            'PORT': '5432'
+        }
+ }
+else:
+     DATABASES = {
         'default': env.db('DATABASE_PUBLIC_URL')
     }
+     
+# DATABASES = {
+#         'default': env.db('DATABASE_PUBLIC_URL')
+#     }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
